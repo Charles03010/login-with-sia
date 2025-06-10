@@ -1,0 +1,7 @@
+{
+  "download_directory": "C:\\Users\\charl\\OneDrive - Universitas Teknologi Yogyakarta\\Kampus\\Semester 6\\PABe\\LoginWithSia\\login-with-sia\\pdf",
+  "url_sia": "http://127.0.0.1:3000/api/auth/sia",
+  "url_login": "http://127.0.0.1:3000/api/auth/login",
+  "url_regist": "http://127.0.0.1:3000/api/users",
+  "url_feed": "http://127.0.0.1:3000/feeds"
+}

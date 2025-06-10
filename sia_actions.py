@@ -12,10 +12,40 @@ import random
 import string
 import glob
 import time
+import json
+import requests
 
 TARGET_URL = "https://sia.uty.ac.id/std"
 LOGIN_SUCCESS_INDICATOR_XPATH = "//h1[contains(text(), 'KALENDER AKADEMIK')]"
 DATA_XPATH = "/html/body/div[2]/nav/div[2]/div/ul/div/center/p"
+
+
+def login(extract_data):
+    # Load URL from setting.json
+    new_data = {}
+    with open("setting.json", "r") as f:
+        settings = json.load(f)
+    post_url = settings.get("url_sia")
+    if not post_url:
+        return {"error": "No URL found in setting.json"}, 500
+    new_data = {
+        "username": extract_data["username"],
+        "password": extract_data["password"],
+        "email": extract_data["email"],
+        "fullName": extract_data["nama"],
+        "profilePictureUrl": extract_data["img_src"],
+    }
+    # Send POST request with extract_data as JSON
+    try:
+        response = requests.post(post_url, json=new_data)
+        response.raise_for_status()
+        print(f"POST request sent successfully. Response: {response.text}")
+        response_json = response.json()
+        # return redirect("http://127.0.0.1:3000/feed")
+        return redirect("http://127.0.0.1:3000/jwt?token=" + response_json["token"])
+    except requests.RequestException as e:
+        print(f"Error sending POST request: {e}")
+        return {"error": "Failed to send data"}, 500
 
 
 async def login_and_extract_data(username, password):
@@ -186,7 +216,9 @@ async def login_and_extract_data(username, password):
                                     start_time = time.time()
                                     while not os.path.exists(pdf_path):
                                         if time.time() - start_time > timeout:
-                                            print("Timeout waiting for doc.pdf to appear in the pdf folder.")
+                                            print(
+                                                "Timeout waiting for doc.pdf to appear in the pdf folder."
+                                            )
                                             break
                                         await asyncio.sleep(0.5)
                                     download_dir = os.path.join(os.getcwd(), "pdf")
@@ -263,10 +295,11 @@ async def login_and_extract_data(username, password):
         except NoSuchElementException:
             print(f"Element with XPath {DATA_XPATH} not found after login.")
             return jsonify({"error": "Internal Server Error Try Again"}), 500
-        return (
-            jsonify({"message": "Data extracted successfully", "data": extracted_data}),
-            200,
-        )
+        return login(extracted_data)
+        # return (
+        #     jsonify({"message": "Data extracted successfully", "data": extracted_data}),
+        #     200,
+        # )
     except TimeoutException as e:
         print(f"A timeout occurred during the process: {e}")
         return jsonify({"error": "Internal Server Error Try Again"}), 500
