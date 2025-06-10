@@ -10,6 +10,11 @@ def get_webdriver():
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
+    options.add_experimental_option("prefs", {
+        "plugins.plugins_disabled": ["Chrome PDF Viewer"],
+        "plugins.always_open_pdf_externally": True,
+        "download.default_directory": r"C:\Users\charl\OneDrive - Universitas Teknologi Yogyakarta\Kampus\Semester 6\PABe\LoginWithSia\login-with-sia\pdf"
+    })
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--window-size=1920,1080")
     try:
